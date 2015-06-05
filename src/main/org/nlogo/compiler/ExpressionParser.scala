@@ -80,6 +80,8 @@ private class ExpressionParser(procedure: Procedure,
         else parseArguments(stmt,tokens,MIN_PRECEDENCE)
         stmt
       case _ =>
+        if (token.tyype == TokenType.REPORTER && token.value.isInstanceOf[_unknownidentifier])
+          exception("Solve the nothing named here", token)
         exception(EXPECTED_COMMAND,token)
     }
   }
@@ -556,6 +558,12 @@ private class ExpressionParser(procedure: Procedure,
       val task = new _commandtask(taskProcedure)
       task.token(openBracket)
       new ReporterApp(task, openBracket.startPos, closeBracket.endPos, openBracket.fileName)
+    }
+    else if(compatible(goalType,Syntax.CodeBlockType)) {
+      //new CodeBlock(block.tokens.mkString(" "),tokens.head.startPos,block.tokens.last.endPos,tokens.head.fileName)
+      import scala.collection.JavaConverters._
+      val tmp = new _constcodeblock(block.tokens.asJava)
+      new ReporterApp(tmp,tokens.head.startPos,block.tokens.last.endPos,tokens.head.fileName)
     }
     else if(compatible(goalType,Syntax.ListType)) {
       // parseConstantList() deals with the open bracket itself, but it leaves the close bracket so
