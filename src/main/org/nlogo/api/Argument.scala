@@ -160,8 +160,8 @@ trait Argument {
    *
    * @throws ExtensionException if the argument is not a <code>CommandTask</code>
    * @throws LogoException      if a LogoException occurred while evaluating this argument
+   */
   @throws(classOf[ExtensionException])
   @throws(classOf[LogoException])
-  def getCodeBlock: CodeBlock
-   */
+  def getCode: java.util.List[org.nlogo.api.Token]
 }
