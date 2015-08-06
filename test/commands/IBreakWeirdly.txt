@@ -1,4 +1,5 @@
 IBreakWeirdly
   O> ibreakweirdly "A" pycor => COMPILER ERROR You can't use PYCOR in an observer context, because PYCOR is turtle/patch-only.
-  O> ibreakweirdly "B" (task pycor)
-  O> ibreakweirdly "C" (task [pycor])
+  O> ibreakweirdly "B" distance => COMPILER ERROR You can't use distance in an observer context, because distance is turtle/patch-only.
+  O> ibreakweirdly "C" (task pycor)
+  O> ibreakweirdly "D" (task [pycor])
