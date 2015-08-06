@@ -151,6 +151,7 @@ C import-drawing etc._importdrawing
 C import-pcolors etc._importpatchcolors
 C import-pcolors-rgb etc._importpcolorsrgb
 C import-world etc._importworld
+C ibreakweirdly _ibreakweirdly
 C inspect gui._inspect
 C jump _jump
 C layout-circle etc._layoutcircle
