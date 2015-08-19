@@ -562,7 +562,45 @@ private class ExpressionParser(procedure: Procedure,
     else if(compatible(goalType,Syntax.CodeBlockType)) {
       //new CodeBlock(block.tokens.mkString(" "),tokens.head.startPos,block.tokens.last.endPos,tokens.head.fileName)
       import scala.collection.JavaConverters._
-      val tmp = new _constcodeblock(block.tokens.asJava)
+
+      // Because we don't parse the inside of the code block, precisely because we don't want to define
+      // legality of code in terms of the standard NetLogo requirements, we have to do a little sanity
+      // checking here to make sure that at the very least, parenthesis and brackets are matched up
+      // without being mixed and matched.  FD 8/19/2015
+
+      def check(remaining: Seq[Token], stack: Seq[Token] = Seq()) {
+        if(remaining.isEmpty) {
+          if(!stack.isEmpty) {
+            if(stack.head.tyype == TokenType.OPEN_PAREN) {
+              exception("Expected close paren here", block.tokens.last)
+            }
+          }
+        } else if (remaining.head.tyype == TokenType.OPEN_BRACKET) {
+          check(remaining.tail, remaining.head +: stack)
+        } else if (remaining.head.tyype == TokenType.OPEN_PAREN) {
+          check(remaining.tail, remaining.head +: stack)
+        } else if (remaining.head.tyype == TokenType.CLOSE_BRACKET) {
+          if(!stack.isEmpty && stack.head.tyype == TokenType.OPEN_PAREN) {
+            exception("Expected close paren before close bracket here", remaining.head)
+          }
+          if(stack.isEmpty || stack.head.tyype != TokenType.OPEN_BRACKET) {
+            exception("Closing bracket has no matching open bracket here", remaining.head)
+          }
+          check(remaining.tail, stack.tail)
+        } else if (remaining.head.tyype == TokenType.CLOSE_PAREN) {
+          if(!stack.isEmpty && stack.head.tyype == TokenType.OPEN_BRACKET) {
+            exception("Expected close bracket before close paren here", remaining.head)
+          }
+          if(stack.isEmpty || stack.head.tyype != TokenType.OPEN_PAREN) {
+            exception("Closing paren has no matching open paren here", remaining.head)
+          }
+          check(remaining.tail, stack.tail)
+        } else {
+          check(remaining.tail, stack)
+        }
+      }
+      check(block.tokens.tail.dropRight(2)) // Drops two because of the EOF
+      val tmp = new _constcodeblock(block.tokens.tail.dropRight(2).asJava)
       new ReporterApp(tmp,tokens.head.startPos,block.tokens.last.endPos,tokens.head.fileName)
     }
     else if(compatible(goalType,Syntax.ListType)) {
